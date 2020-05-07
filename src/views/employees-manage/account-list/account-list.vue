@@ -92,7 +92,9 @@ export default {
           width: 150
         }
       ],
-      tableData: [],
+      tableData: [
+        { goodsSPU: 'fc', receiver: 'scs', receiverAddress: 'wffwca', cellPhone: 'dcvwfve' }
+      ],
 
       pagination: {
         page: 1,

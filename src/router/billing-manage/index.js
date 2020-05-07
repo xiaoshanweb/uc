@@ -6,20 +6,30 @@ export const billingManage = [
     name: 'BillingManage',
     component: Layout,
     alwaysShow: true,
-    meta: { title: '会员中心', icon: 'form', auth: '/billing-manage' },
+    meta: { title: '会员中心', icon: 'form' },
     children: [
       {
-        path: 'common-billing-list',
-        name: 'CommonBillingList',
+        path: 'member-list',
+        name: 'MemberList',
         component: () => import('@/views/billing-manage/common-billing-list.vue'),
-        meta: { title: '会员中心列表', auth: '/billing-manage/common-billing-list' }
+        meta: { title: '会员中心列表' }
       },
       {
-        path: 'custom-billing-list',
-        name: 'CustomBillingList',
+        path: 'member-list-empty',
+        name: 'memberListEmpty',
+        component: Empty,
+        redirect: '/billing-manage/member-list',
         hidden: true,
-        component: () => import('@/views/billing-manage/custom-billing-list.vue'),
-        meta: { title: '会员添加', auth: '/billing-manage/custom-billing-list' }
+        meta: { title: '会员列表' },
+        children: [
+          {
+            path: 'member-manage',
+            name: 'MemberManage',
+            hidden: true,
+            component: () => import('@/views/billing-manage/custom-billing-list.vue'),
+            meta: { title: '会员添加' }
+          }
+        ]
       }
     ]
   }

@@ -34,15 +34,21 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
+    // const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ uname: username, upwd: password }).then(response => {
-        const data = response.data.account
-        console.log(data)
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
-        resolve()
-      })
+    //   login({ uname: username, upwd: password }).then(response => {
+    //     const data = response.data.account
+    //     console.log(data)
+    //     commit('SET_TOKEN', data.token)
+    //     setToken(data.token)
+    //     resolve()
+    //   })
+      const data = {
+        token: 'wjbfchviwgeifgqiwvfu'
+      }
+      commit('SET_TOKEN', data.token)
+      setToken(data.token)
+      resolve()
     })
   },
 

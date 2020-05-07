@@ -2,21 +2,110 @@
   <div class="account-manage p-main">
     <v-card padding="30px">
       <v-title class="mb10">基础信息</v-title>
-      <el-form ref="form" :model="form" :rules="rules" label-width="100px" style="width: 300px">
-        <el-form-item label="员工手机号" prop="mobile">
-          <el-input v-model="form.mobile" :disabled="disabled" placeholder="请输入员工手机号" />
-        </el-form-item>
-        <el-form-item label="员工姓名" prop="userName">
-          <el-input v-model="form.userName" :disabled="disabled" placeholder="请输入员工姓名" />
-        </el-form-item>
-        <el-form-item label="选择角色" prop="roleName">
-          <el-select v-model="form.roleName" :disabled="disabled" placeholder="请选择角色" @change="changeRole">
-            <el-option v-for="(item,i) of role" :key="i" :label="item.roleName" :value="item.code" />
-          </el-select>
-        </el-form-item>
+      <el-form ref="form" :model="form" :rules="rules" label-width="130px">
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="订单号" prop="orderNo">
+              <el-input v-model="form.orderNo" :disabled="disabled" />
+            </el-form-item>
+            <el-form-item label="下单时间" prop="pushTime">
+              <el-input v-model="form.pushTime" :disabled="disabled"  />
+            </el-form-item>
+            <el-form-item label="付款时间" prop="pay_time">
+              <el-input v-model="form.pay_time" :disabled="disabled" />
+            </el-form-item>
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="form.remark" :disabled="disabled"  />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="订单代理人姓名" prop="memberNick">
+              <el-input v-model="form.memberNick" :disabled="disabled" />
+            </el-form-item>
+            <el-form-item label="订单代理人会员号" prop="delverID">
+              <el-input v-model="form.delverID" :disabled="disabled"  />
+            </el-form-item>
+            <el-form-item label="邮编" prop="postcode">
+              <el-input v-model="form.postcode" :disabled="disabled" />
+            </el-form-item>
+            <el-form-item label="固定电话" prop="fixedphone">
+              <el-input v-model="form.fixedphone" :disabled="disabled"  />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="订单号" prop="orderNo">
+              <el-input v-model="form.orderNo" :disabled="disabled" />
+            </el-form-item>
+            <el-form-item label="下单时间" prop="pushTime">
+              <el-input v-model="form.pushTime" :disabled="disabled"  />
+            </el-form-item>
+            <el-form-item label="付款时间" prop="pay_time">
+              <el-input v-model="form.pay_time" :disabled="disabled" />
+            </el-form-item>
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="form.remark" :disabled="disabled"  />
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
-      <v-title class="mb10">权限信息</v-title>
-      <el-tree ref="tree" accordion :data="data" node-key="code" :props="defaultProps" />
+      <v-title class="mb10">商品信息</v-title>
+      <v-table
+        :table-config="tableConfig"
+        :table-data="tableData"
+        @pagination="getList"
+      >
+        <template slot="toolsBar">
+          <el-button type="primary" @click="addOrder()">添加订单</el-button>
+        </template>
+      </v-table>
+      <v-title class="mb10">物流信息</v-title>
+      <el-table
+        :data="tableData"
+        style="width: 100%"
+      >
+        <el-table-column
+          prop="date"
+          label="物流公司"
+          align="center"
+          width="180"
+        />
+        <el-table-column
+          prop="name"
+          label="订单号"
+          align="center"
+          width="180"
+        />
+        <el-table-column
+          label="物流信息"
+          align="center"
+        >
+          <el-table-column
+            prop="provinceMessage"
+            label="省份"
+            align="center"
+            width="120"
+          />
+          <el-table-column
+            prop="cityMessage"
+            label="市区"
+            align="center"
+            width="120"
+          />
+          <el-table-column
+            prop="countyMessage"
+            label="县"
+            align="center"
+            width="120"
+          />
+          <el-table-column
+            prop="address"
+            label="地址"
+            align="center"
+            width="300"
+          />
+        </el-table-column>
+      </el-table>
+      </el-form>
       <el-button v-show="isView" type="primary" class="submit" @click="submitForm">提交</el-button>
     </v-card>
   </div>
@@ -38,24 +127,32 @@ export default {
       }
     }
     return {
-      data: [],
-      checkedKeys: [],
-      defaultProps: {
-        children: 'children',
-        label: 'label'
-      },
+      tableConfig: [
+        {
+          prop: 'goodsSPU',
+          label: '商品编号',
+          width: 120
+        },
+        {
+          prop: 'title',
+          label: '标题'
+        },
+        {
+          prop: 'describle',
+          label: '描述',
+          width: 150
+        },
+        {
+          prop: 'price',
+          label: '价格'
+        }
+      ],
+      tableData: [{ goodsSPU: 'scd', title: 'sfvd', describle: 'scd', price: 'cdsv' }],
       form: {
         mobile: '',
         userName: '',
         roleName: ''
-      },
-      role: [],
-      rules: {
-        phone: [{ required: true, validator: checkPhone, trigger: 'blur' }],
-        name: [{ required: true, message: '请输入员工姓名', trigger: 'blur' }],
-        role: [{ required: true, message: '请选择角色', trigger: 'change' }]
-      },
-      status: ''
+      }
     }
   },
   computed: {
@@ -184,9 +281,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.account-manage{
-  .submit {
-    margin: 30px 0 0 30px;
-  }
+.account-manage {
+    .submit {
+        margin: 30px 0 0 30px;
+    }
+}
+.mb10 {
+    margin: 20px 0;
 }
 </style>

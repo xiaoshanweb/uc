@@ -15,7 +15,7 @@
       <el-table-column slot="operate" width="150px" label="操作" align="center" fixed="right">
         <template slot-scope="scope">
           <el-button type="text" @click="editForm('edit',scope.row)">编辑</el-button>
-          <el-button type="text" @click="updateStatus(scope.row)">查看</el-button>
+          <el-button type="text" @click="editForm('info',scope.row)">查看</el-button>
         </template>
       </el-table-column>
     </v-table>
@@ -80,11 +80,13 @@ export default {
         page: 1,
         pageSize: 20
       },
-      tableData: []
+      tableData: [
+        { delverID: 'ewfh', memberName: 'sdf', memberNick: 'fd', mobile: 'sc', email: 'dwf', openId: 'sf', createTime: '', updateUid: '1234', updateTime: '' }
+      ]
     }
   },
   mounted() {
-    this.getList()
+    // this.getList()
   },
   methods: {
     getList() {
@@ -103,28 +105,14 @@ export default {
       this.form = form
       this.getList()
     },
-    toggleSwitch(value, row, type) {
-      console.log(type, 'xs')
-      const tip = value === true ? '您确定要启用吗?' : '您确定要停用吗？'
-      const message = value === true ? '启用后该仓库将会产生该计费项' : '停用后该仓库不会产生该计费项'
-      this.$confirm(message, tip, {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        const data = {
-          costCode: row.costCode,
-          [type]: row[type] == true ? 0 : 1
-        }
-        console.log(data, 'cdcd')
-        this.$http.commonListUpdate(data).then(res => {
-          row[type] = value
-          this.getList()
-        }).catch(() => {
-          row[type] = !value
-        })
-      }).catch(() => {
-        row[type] = !value
+    editForm(type, row) {
+      const params = {
+        type,
+        details: row || ''
+      }
+      this.$router.push({
+        name: 'MemberManage',
+        params
       })
     }
   }

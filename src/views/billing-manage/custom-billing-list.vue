@@ -1,196 +1,168 @@
 <template>
-  <div class="custom-billing-list p-main">
-    <v-form :form-config="formConfig" label-width="100px" @search="search" />
-    <v-table
-      :table-config="tableConfig"
-      :table-data="tableData"
-      :total="total"
-      :page.sync="pagination.page"
-      :limit.sync="pagination.pageSize"
-      @pagination="getList"
-    >
-      <template slot="warehouseCostSwitch" slot-scope="scope">
-        <el-switch v-model="scope.row.warehouseCostSwitch" @change="val => toggleSwitch(val, scope.row, 'warehouseCostSwitch')" />
-      </template>
-      <template slot="materialBuyCostSwitch" slot-scope="scope">
-        <el-switch v-model="scope.row.materialBuyCostSwitch" @change="val => toggleSwitch(val, scope.row, 'materialBuyCostSwitch')" />
-      </template>
-      <template slot="storageCostSwitch" slot-scope="scope">
-        <el-switch v-model="scope.row.storageCostSwitch" @change="val => toggleSwitch(val, scope.row, 'storageCostSwitch')" />
-      </template>
-      <template slot="serviceCostSwitch" slot-scope="scope">
-        <el-switch v-model="scope.row.serviceCostSwitch" @change="val => toggleSwitch(val, scope.row, 'serviceCostSwitch')" />
-      </template>
-      <template slot="materialSendCostSwitch" slot-scope="scope">
-        <el-switch v-model="scope.row.materialSendCostSwitch" @change="val => toggleSwitch(val, scope.row, 'materialSendCostSwitch')" />
-      </template>
-      <template slot="returnCostSwitch" slot-scope="scope">
-        <el-switch v-model="scope.row.returnCostSwitch" @change="val => toggleSwitch(val, scope.row, 'returnCostSwitch')" />
-      </template>
-      <template slot="paidCostSwitch" slot-scope="scope">
-        <el-switch v-model="scope.row.paidCostSwitch" @change="val => toggleSwitch(val, scope.row, 'paidCostSwitch')" />
-      </template>
-      <template slot="withdrawalCostSwitch" slot-scope="scope">
-        <el-switch v-model="scope.row.withdrawalCostSwitch" @change="val => toggleSwitch(val, scope.row, 'withdrawalCostSwitch')" />
-      </template>
-    </v-table>
+  <div class="logistics-company-list p-main">
+    <v-card padding="30px">
+      <v-title class="mb10">会员基础信息</v-title>
+      <el-form ref="form" :model="form" label-width="100px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="会员号" prop="delverID">
+              <el-input v-model="form.delverID" :disabled="disabled || disabledSPU" />
+            </el-form-item>
+            <el-form-item label="会员名字" prop="memberName">
+              <el-input v-model="form.memberName" :disabled="disabled" />
+            </el-form-item>
+            <el-form-item label="会员名称" prop="memberNick">
+              <el-input v-model="form.memberNick" :disabled="disabled" />
+            </el-form-item>
+            <el-form-item label="手机号码" prop="phone">
+              <el-input v-model="form.phone" :disabled="disabled" />
+            </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+              <el-input v-model="form.email" :disabled="disabled" />
+            </el-form-item>
+            <el-form-item label="openId" prop="openId">
+              <el-input v-model="form.openId" :disabled="disabled" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="avator" class="image">
+              <el-image src="../../assets/images/avatar.jpg" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <v-title class="mb10">订单信息</v-title>
+      <v-table
+        :table-config="tableConfig"
+        :table-data="tableData"
+        @pagination="getList"
+      >
+        <template slot="toolsBar">
+          <el-button type="primary" @click="addOrder()">添加订单</el-button>
+        </template>
+      </v-table>
+      <el-button v-show="!disabled" type="primary" class="submit" @click="submitForm">提交</el-button>
+    </v-card>
+    <el-dialog title="添加订单" :visible.sync="dialogFormVisible">
+      <el-form :model="form" label-width="120px">
+        <el-form-item label="商品SUP">
+          <el-input v-model="orderForm.goodsSPU" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="订单号">
+          <el-input v-model="orderForm.orderNo" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="收件人">
+          <el-input v-model="orderForm.receiver" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="收件人地址">
+          <el-input v-model="orderForm.receiverAddress" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="收件人手机号码">
+          <el-input v-model="orderForm.cellphone" autocomplete="off" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 export default {
-  name: 'CustomBillingList',
+  name: 'LogisticsCompanyList',
   data() {
     return {
-      formConfig: [
-        {
-          type: 'el-input',
-          prop: 'warehouseName',
-          label: '仓库名称',
-          placeholder: '请输入仓库名称'
-        },
-        {
-          type: 'el-input',
-          prop: 'warehouseCode',
-          label: '仓库编码',
-          placeholder: '请输入仓库编码'
-        }
-      ],
-      form: {},
+      disabled: false,
+      disabledSPU: false,
+      form: {
+        delverID: '',
+        memberName: '',
+        memberNick: '',
+        phone: '',
+        email: '',
+        openId: '',
+        avator: ''
+      },
+      params: {
+        goodsSPU: '',
+        type: ''
+      },
+      dialogFormVisible: false,
+      orderForm: {
+        goodsSPU: '',
+        orderNo: '',
+        receiver: '',
+        receiverAddress: '',
+        cellphone: ''
+      },
       tableConfig: [
         {
-          prop: 'warehouseName',
-          label: '仓库名称'
+          prop: 'goodsSPU',
+          label: '商品SPU',
+          width: '150px'
         },
         {
-          prop: 'warehouseSystem',
-          label: '仓库系统'
+          prop: 'receiver',
+          label: '收件人'
         },
         {
-          prop: 'warehouseCode',
-          label: '仓库编码'
+          prop: 'receiverAddress',
+          label: '收件地址'
         },
         {
-          prop: 'warehouseCostSwitch',
-          label: '仓租费',
-          slot: 'warehouseCostSwitch'
-        },
-        {
-          prop: 'materialBuyCostSwitch',
-          label: '包材代采费',
-          slot: 'materialBuyCostSwitch'
-        },
-        {
-          prop: 'storageCostSwitch',
-          label: '入库费',
-          slot: 'storageCostSwitch'
-        },
-        {
-          prop: 'serviceCostSwitch',
-          label: '增值服务费',
-          slot: 'serviceCostSwitch'
-        },
-        {
-          prop: 'materialSendCostSwitch',
-          label: '拦截费',
-          slot: 'materialSendCostSwitch'
-        },
-        {
-          prop: 'returnCostSwitch',
-          label: '退货费',
-          slot: 'returnCostSwitch'
-        },
-        {
-          prop: 'paidCostSwitch',
-          label: '赔付费',
-          slot: 'paidCostSwitch'
-        },
-        {
-          prop: 'withdrawalCostSwitch',
-          label: '撤仓费',
-          slot: 'withdrawalCostSwitch'
-        },
-        {
-          prop: 'updateUid',
-          label: '更新者'
-        },
-        {
-          prop: 'updateTime',
-          label: '最近更新时间',
-          width: 150
+          prop: 'cellphone',
+          label: '员工手机号',
+          width: '150px'
         }
       ],
-      total: 0,
-      pagination: {
-        page: 1,
-        pageSize: 20
-      },
-      tableData: []
+      tableData: [
+        { goodsSPU: 'fc', receiver: 'scs', receiverAddress: 'wffwca', cellPhone: 'dcvwfve' }
+      ]
     }
   },
-  mounted() {
-    this.getList()
+  created() {
+    Object.assign(this.params, this.$route.params)
+    if (this.params.type == 2) {
+      this.disabled = true
+      this.getDetais()
+    } else if (this.params.type == 1) {
+      this.disabledSPU = true
+      this.getDetais()
+    }
   },
   methods: {
-    getList() {
+    getList() {},
+    getDetais() {
       const data = {
-        ...this.form,
-        ...this.pagination
+        goodsSPU: this.params.goodsSPU
       }
-      console.log(data)
-      this.$http.specialList(data).then(res => {
-        // if (res.data.data == null) {
-        //   this.$message.error('没有数据返回')
-        // }
-        const body = res.data.data || []
-        this.total = res.data.totalNum
-        body.forEach(item => {
-          for (const key in item) {
-            if (item[key] === 1) {
-              item[key] = false
-            }
-            if (item[key] === 0) {
-              item[key] = true
-            }
-          }
-        })
-        this.tableData = body
+      this.$http.goodsDetails({ ...data }).then(res => {
+        const body = res.data[0]
+        Object.assign(this.form, body)
+      }).catch(err => {
+        this.$message.error(err)
       })
     },
-    search(form) {
-      this.form = form
-      this.getList()
+    submitForm() {
+
     },
-    togglePage(val) {
-      this.page = val
-      this.getList()
-    },
-    toggleSwitch(value, row, type) {
-      const tip = value === true ? '您确定要启用吗?' : '您确定要停用吗？'
-      const message = value === true ? '启用后该供应商将有权限导入相关账单' : '停用后该供应商将无权限导入相关账单'
-      this.$confirm(message, tip, {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        const data = {
-          costCode: row.costCode,
-          [type]: row[type] == true ? 0 : 1
-        }
-        this.$http.specialListUpdate(data).then(res => {
-          row[type] = value
-          this.getList()
-        }).catch(() => {
-          row[type] = !value
-        })
-      }).catch(() => {
-        row[type] = !value
-      })
+    addOrder() {
+      this.dialogFormVisible = true
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-  .custom-billing-list{}
+  .submit{
+    margin-top: 20px;
+  }
+    .image{
+        float: right;
+      margin-right:100px;
+      margin-top:100px;
+  }
 </style>
