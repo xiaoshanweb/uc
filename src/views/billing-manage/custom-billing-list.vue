@@ -31,8 +31,11 @@
           </el-col>
         </el-row>
       </el-form>
+      <el-button v-show="!disabled" type="primary" class="submit" @click="submitForm()">提交</el-button>
+
       <v-title class="mb10">订单信息</v-title>
       <v-table
+        v-if="params.type !== 'add'"
         :table-config="tableConfig"
         :table-data="tableData"
         @pagination="getList"
@@ -41,7 +44,6 @@
           <el-button type="primary" @click="addOrder()">添加订单</el-button>
         </template>
       </v-table>
-      <el-button v-show="!disabled" type="primary" class="submit" @click="submitForm">提交</el-button>
     </v-card>
     <el-dialog title="添加订单" :visible.sync="dialogFormVisible">
       <el-form :model="form" label-width="120px">
@@ -63,7 +65,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="orderSubmit">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -86,10 +88,7 @@ export default {
         openId: '',
         avator: ''
       },
-      params: {
-        goodsSPU: '',
-        type: ''
-      },
+      params: {},
       dialogFormVisible: false,
       orderForm: {
         goodsSPU: '',
@@ -103,6 +102,10 @@ export default {
           prop: 'goodsSPU',
           label: '商品SPU',
           width: '150px'
+        },
+        {
+          props: 'orderNo',
+          label: '订单号'
         },
         {
           prop: 'receiver',
@@ -124,30 +127,49 @@ export default {
     }
   },
   created() {
-    Object.assign(this.params, this.$route.params)
-    if (this.params.type == 2) {
+    Object.assign(this.form, this.$route.params)
+    if (this.params.type == 'info') {
       this.disabled = true
-      this.getDetais()
-    } else if (this.params.type == 1) {
+      this.getOrderDetais()
+    } else if (this.params.type == 'edit') {
       this.disabledSPU = true
-      this.getDetais()
+      this.getOrderDetais()
     }
   },
   methods: {
     getList() {},
-    getDetais() {
+    getOrderDetais() {
       const data = {
-        goodsSPU: this.params.goodsSPU
+        delverID: this.form.delverID
       }
-      this.$http.goodsDetails({ ...data }).then(res => {
-        const body = res.data[0]
-        Object.assign(this.form, body)
-      }).catch(err => {
-        this.$message.error(err)
-      })
     },
     submitForm() {
-
+      const data = {
+        ...this.form
+      }
+      if (this.params.type === 'add') {
+        this.$api.memberAdd(data).then(res => {
+          this.$router.go(-1)
+        })
+      } else if (this.params.type === 'edit') {
+        this.$api.memberUpdate(data).then(res => {
+          this.$message.success('编辑成功')
+        })
+      }
+    },
+    memberOrder() {
+      const data = {
+        delverID: this.params.delverID
+      }
+      this.$api.memberOrder(data).then(res => {
+        const body = res.data
+        this.tableData = body
+      })
+    },
+    orderSubmit() {
+      const data = {
+        ...this.orderForm
+      }
     },
     addOrder() {
       this.dialogFormVisible = true
@@ -158,9 +180,9 @@ export default {
 
 <style lang="scss" scoped>
   .submit{
-    margin-top: 20px;
+    margin: 20px 0;
   }
-    .image{
+.image{
         float: right;
       margin-right:100px;
       margin-top:100px;

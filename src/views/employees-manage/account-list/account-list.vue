@@ -132,45 +132,12 @@ export default {
       })
     },
     operateAdmin(row, status) {
-      if (status == 'info' || status == 'edit' || status == null) {
+      if (status == 'info' || status == 'edit') {
         const params = {
-          userCode: row ? row.userCode : null,
-          roleCode: row ? row.roleCode : null,
+          details: row || null,
           status: status || null
         }
         this.$router.push({ name: 'AccountManage', params })
-      } else if (status == 'stop') {
-        console.log('1')
-        this.dialog.visible = true
-        this.dialog.type = row.status == 1
-        this.dialog.title = `你确定要${row.status !== 1 ? '启用' : '停用'}吗？`
-      } else {
-        console.log()
-      }
-    },
-    updateStatus(row, status) {
-      if (status == 'stop') {
-        const code = []
-        code.push(row.roleCode)
-        const data = {
-          userCode: row.userCode,
-          userStatus: row.status == 1 ? 2 : 1,
-          roleCode: code
-        }
-        this.$http.accountUpdate(data).then(res => {
-          this.getList()
-        })
-      } else {
-        const code = []
-        code.push(row.roleCode)
-        const data = {
-          userCode: row.userCode,
-          userStatus: 3,
-          roleCode: code
-        }
-        this.$http.accountUpdate(data).then(res => {
-          this.getList()
-        })
       }
     }
   }
